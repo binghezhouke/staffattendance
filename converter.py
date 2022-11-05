@@ -6,17 +6,19 @@ import sys
 '''表格格式不变时通常不需要换,代表有效数据起始的行和列'''
 ROW_START = 5
 COL_START = 4
+DAY_START_TIME = datetime.strptime("10:00", "%H:%M")
+DAY_END_TIME = datetime.strptime("19:00", "%H:%M")
+LAUNCH_BONUS_END_TIME = datetime.strptime("12:30", "%H:%M")
 
 
 def judge(cell):
-    start_time = datetime.strptime("10:00", "%H:%M")
-    end_time = datetime.strptime("19:00", "%H:%M")
     font_late = Font(color="FF0000")
     font_too_early = Font(color="00FF00")
     font_bonus = Font(color="912CEE")
 
     bonus_delta = timedelta(hours=11)
     should_give_bonus = False
+    should_give_launch_bonus = False
     s = cell.value
     v = s.split(r";")
 
@@ -24,25 +26,28 @@ def judge(cell):
         # 存在正常的上下班打卡记录
         s = v[0].strip()
         start = datetime.strptime(s, "%H:%M")
-        if start > start_time:
+        if start > DAY_START_TIME:
             cell.font = font_late
         e = v[1].strip()
         if "次日" in e:
             # 异常数据处理
             e = "23:59"
         end = datetime.strptime(e, "%H:%M")
-        if end < end_time:
+        if end < DAY_END_TIME:
             cell.font = font_too_early
         if end-start >= bonus_delta:
             should_give_bonus = True
             cell.font = font_bonus
+
+        if start <= LAUNCH_BONUS_END_TIME and end >= DAY_END_TIME:
+            should_give_launch_bonus = True
         cell.value = "{}\n{}".format(s, e)
     else:
         if len(v) == 2:
             cell.font = font_late
         cell.value = "{}\n".format(v[0].strip())
 
-    return should_give_bonus
+    return should_give_bonus, should_give_launch_bonus
 
 
 def find_holiday(ws, row_max, col_max):
@@ -66,12 +71,15 @@ def handle(in_file, out_file):
     for r in range(ROW_START, row_max+1):
         print(ws.cell(r, 1).value)
         bonus_cnt = 0
+        launch_bonus_cnt = 0
         for c in range(COL_START, col_max+1):
             cell = ws.cell(r, c)
-            should_give_bonus = judge(cell)
-            if should_give_bonus and c not in holiday_idx:
-                bonus_cnt += 1
+            should_give_bonus, should_give_launch_bonus = judge(cell)
+            if c not in holiday_idx:
+                bonus_cnt += 1 if should_give_bonus else 0
+                launch_bonus_cnt += 1 if should_give_launch_bonus else 0
         ws.cell(r, col_max+1).value = bonus_cnt
+        ws.cell(r, col_max+2).value = launch_bonus_cnt
 
     wb.save(out_file)
 
