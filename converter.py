@@ -13,8 +13,9 @@ LAUNCH_BONUS_END_TIME = datetime.strptime("12:30", "%H:%M")
 
 def judge(cell):
     font_late = Font(color="FF0000")
-    font_too_early = Font(color="00FF00")
+    font_too_early = Font(color="FF0000")
     font_bonus = Font(color="912CEE")
+    font_holiday=Font(color="00FF00")
 
     bonus_delta = timedelta(hours=11)
     should_give_bonus = False
@@ -43,9 +44,12 @@ def judge(cell):
             should_give_launch_bonus = True
         cell.value = "{}\n{}".format(s, e)
     else:
-        if len(v) == 2:
+        if "休息" in s:
+            cell.font=font_holiday
+        else:
             cell.font = font_late
-        cell.value = "{}\n".format(v[0].strip())
+            cell.value = "{}\n".format(v[0].strip())
+
 
     return should_give_bonus, should_give_launch_bonus
 
@@ -58,9 +62,11 @@ def find_holiday(ws, row_max, col_max):
         if holiday_cnt >= 1:
             holidays_idx.append(c)
     print("本月休息日为:")
-    print([x-3 for x in holidays_idx])
+    month_days=col_max-COL_START
+    wokr_days=month_days-len(holidays_idx)+1
+    print([x-COL_START+1 for x in holidays_idx])
+    print(wokr_days)
     return holidays_idx
-
 
 def handle(in_file, out_file):
     wb = load_workbook(in_file)
@@ -68,6 +74,8 @@ def handle(in_file, out_file):
     row_max, col_max = ws.max_row, ws.max_column
 
     holiday_idx = find_holiday(ws, row_max, col_max)
+    ws.cell(ROW_START-1, col_max+1).value="晚餐补助"
+    ws.cell(ROW_START-1, col_max+2).value="午餐补助"
     for r in range(ROW_START, row_max+1):
         print(ws.cell(r, 1).value)
         bonus_cnt = 0
@@ -89,7 +97,7 @@ if __name__ == '__main__':
         in_file = sys.argv[1]
         out_file = sys.argv[2]
     else:
-        in_file = "a.xlsx"
-        out_file = "b.xlsx"
+        in_file = "D:/pypj/a.xlsx"
+        out_file = "D:/pypj/b.xlsx"
     print(in_file, out_file)
     handle(in_file, out_file)
