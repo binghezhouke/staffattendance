@@ -8,7 +8,7 @@ ROW_START = 5
 COL_START = ord('V')-ord('A')+1
 DAY_START_TIME = datetime.strptime("10:00", "%H:%M")
 DAY_END_TIME = datetime.strptime("19:00", "%H:%M")
-LAUNCH_BONUS_END_TIME = datetime.strptime("12:30", "%H:%M")
+LAUNCH_BONUS_END_TIME = datetime.strptime("10:30", "%H:%M")
 
 
 def judge(cell):
@@ -21,7 +21,7 @@ def judge(cell):
     bonus_delta = timedelta(hours=11)
     should_give_bonus = False
     should_give_launch_bonus = False
-    too_eary_quit = False
+    leave_eary_judge = False
     late = False
     s = cell.value
     v = s.split(r";")
@@ -33,6 +33,7 @@ def judge(cell):
         if start > DAY_START_TIME:
             cell.font = font_late
             late = True
+            start = DAY_START_TIME  # 迟到后上班时间按10:00计算
         e = v[1].strip()
         if "次日" in e:
             # 异常数据处理
@@ -40,12 +41,12 @@ def judge(cell):
         end = datetime.strptime(e, "%H:%M")
         if end-start < leave_early_delta:
             cell.font = font_leave_early
-            too_eary_quit = True
+            leave_eary_judge = True
         if end-start >= bonus_delta:
             should_give_bonus = True
             # cell.font = font_bonus
 
-        if start <= LAUNCH_BONUS_END_TIME and end >= DAY_END_TIME:
+        if start <= LAUNCH_BONUS_END_TIME and not leave_eary_judge:
             should_give_launch_bonus = True
         cell.value = "{}\n{}".format(s, e)
     else:
@@ -56,7 +57,7 @@ def judge(cell):
             late = True
             cell.value = "{}\n".format(v[0].strip())
 
-    return should_give_bonus, should_give_launch_bonus, late, too_eary_quit
+    return should_give_bonus, should_give_launch_bonus, late, leave_eary_judge
 
 
 def find_holiday(ws, row_max, col_max):
