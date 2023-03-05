@@ -6,7 +6,7 @@ import sys
 
 def handle(in_file, out_file):
     # From G -> W
-    info_map = ['E', 'I', 'F', 'K', 'Z', 'J', 'Z', 'Z',
+    info_map = ['E', 'I', 'F', 'K', 'Z', 'J', 'Z', 'U',
                 'Z', 'N', 'P', 'O', 'L', 'M', 'Q', 'S', 'T']
     wb_in = load_workbook(in_file)
     ws_in = wb_in[wb_in.sheetnames[0]]
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         in_file = sys.argv[1]
         out_file = sys.argv[2]
     else:
-        in_file = "D:/pypj/staffattendance/a.xlsx"
-        out_file = "D:/pypj/staffattendance/b.xlsx"
+        in_file = "D:/pypj/staffattendance/b.xlsx"
+        out_file = "D:/pypj/staffattendance/壹多考勤2023年02(带缺卡项).xlsx"
     print(in_file, out_file)
     handle(in_file, out_file)

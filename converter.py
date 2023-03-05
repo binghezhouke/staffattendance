@@ -33,7 +33,8 @@ def judge(cell):
         if start > DAY_START_TIME:
             cell.font = font_late
             late = True
-            start = DAY_START_TIME  # 迟到后上班时间按10:00计算
+            if start <= LAUNCH_BONUS_END_TIME:
+                start = DAY_START_TIME  # 迟到后上班时间按10:00计算
         e = v[1].strip()
         if "次日" in e:
             # 异常数据处理
