@@ -17,6 +17,7 @@ def judge(cell):
     font_bonus = Font(color="912CEE")
     font_holiday=Font(color="00FF00")
 
+    too_early_delta = timedelta(hours=9)
     bonus_delta = timedelta(hours=11)
     should_give_bonus = False
     should_give_launch_bonus = False
@@ -34,11 +35,11 @@ def judge(cell):
             # 异常数据处理
             e = "23:59"
         end = datetime.strptime(e, "%H:%M")
-        if end < DAY_END_TIME:
+        if end-start < too_early_delta:
             cell.font = font_too_early
         if end-start >= bonus_delta:
             should_give_bonus = True
-            cell.font = font_bonus
+            #cell.font = font_bonus
 
         if start <= LAUNCH_BONUS_END_TIME and end >= DAY_END_TIME:
             should_give_launch_bonus = True
@@ -97,7 +98,7 @@ if __name__ == '__main__':
         in_file = sys.argv[1]
         out_file = sys.argv[2]
     else:
-        in_file = "D:/pypj/a.xlsx"
-        out_file = "D:/pypj/b.xlsx"
+        in_file = "D:/pypj/staffattendance/a.xlsx"
+        out_file = "D:/pypj/staffattendance/b.xlsx"
     print(in_file, out_file)
     handle(in_file, out_file)
