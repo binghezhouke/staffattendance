@@ -6,7 +6,7 @@ import sys
 
 def handle(in_file, out_file):
     # From G -> W
-    info_map = ['E', 'G', 'F', 'K', 'Z', 'J', 'Z', 'Z',
+    info_map = ['E', 'I', 'F', 'K', 'Z', 'J', 'Z', 'Z',
                 'Z', 'N', 'P', 'O', 'L', 'M', 'Q', 'S', 'T']
     wb_in = load_workbook(in_file)
     ws_in = wb_in[wb_in.sheetnames[0]]
